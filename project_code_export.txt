@@ -1,0 +1,199 @@
+Project Code Export
+Date: Sat Nov 30 00:35:52 CET 2024
+
+=========================================
+File: CHANGELOG.md
+=========================================
+
+# Change Log
+
+All notable changes to the "project-export" extension will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+## [Unreleased]
+
+- Initial release
+
+=========================================
+File: src/extension.ts
+=========================================
+
+import { exec } from "child_process";
+import * as vscode from "vscode";
+
+export function activate(context: vscode.ExtensionContext) {
+  // Registrar el comando
+  const exportCommand = vscode.commands.registerCommand(
+    "project-export.exportProject",
+    () => {
+      const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+      if (!workspacePath) {
+        vscode.window.showErrorMessage("No workspace folder found");
+        return;
+      }
+
+      exec(
+        "~/scripts/project2txt.sh",
+        { cwd: workspacePath },
+        (error, stdout, stderr) => {
+          if (error) {
+            vscode.window.showErrorMessage(`Error: ${error.message}`);
+            return;
+          }
+          vscode.window.showInformationMessage(
+            "Project exported to clipboard!"
+          );
+        }
+      );
+    }
+  );
+
+  // Crear el botón en la barra de estado (cambiado de Left a Right y añadida prioridad)
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    1000 // Alta prioridad para que aparezca más a la izquierda
+  );
+  statusBarItem.text = "$(files) Export to Clipboard"; // Cambiado el icono y el texto
+  statusBarItem.backgroundColor = new vscode.ThemeColor(
+    "statusBarItem.warningBackground"
+  ); // Añadido color
+  statusBarItem.tooltip = "Export project to clipboard"; // Añadido tooltip
+  statusBarItem.command = "project-export.exportProject";
+  statusBarItem.show();
+
+  context.subscriptions.push(exportCommand, statusBarItem);
+}
+
+export function deactivate() {}
+
+
+=========================================
+File: src/test/extension.test.ts
+=========================================
+
+import * as assert from 'assert';
+
+// You can import and use all API from the 'vscode' module
+// as well as import your extension to test it
+import * as vscode from 'vscode';
+// import * as myExtension from '../../extension';
+
+suite('Extension Test Suite', () => {
+	vscode.window.showInformationMessage('Start all tests.');
+
+	test('Sample test', () => {
+		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
+		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+	});
+});
+
+
+=========================================
+File: vsc-extension-quickstart.md
+=========================================
+
+# Welcome to your VS Code Extension
+
+## What's in the folder
+
+* This folder contains all of the files necessary for your extension.
+* `package.json` - this is the manifest file in which you declare your extension and command.
+  * The sample plugin registers a command and defines its title and command name. With this information VS Code can show the command in the command palette. It doesn’t yet need to load the plugin.
+* `src/extension.ts` - this is the main file where you will provide the implementation of your command.
+  * The file exports one function, `activate`, which is called the very first time your extension is activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
+  * We pass the function containing the implementation of the command as the second parameter to `registerCommand`.
+
+## Setup
+
+* install the recommended extensions (amodio.tsl-problem-matcher, ms-vscode.extension-test-runner, and dbaeumer.vscode-eslint)
+
+
+## Get up and running straight away
+
+* Press `F5` to open a new window with your extension loaded.
+* Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
+* Set breakpoints in your code inside `src/extension.ts` to debug your extension.
+* Find output from your extension in the debug console.
+
+## Make changes
+
+* You can relaunch the extension from the debug toolbar after changing code in `src/extension.ts`.
+* You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
+
+
+## Explore the API
+
+* You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
+
+## Run tests
+
+* Install the [Extension Test Runner](https://marketplace.visualstudio.com/items?itemName=ms-vscode.extension-test-runner)
+* Run the "watch" task via the **Tasks: Run Task** command. Make sure this is running, or tests might not be discovered.
+* Open the Testing view from the activity bar and click the Run Test" button, or use the hotkey `Ctrl/Cmd + ; A`
+* See the output of the test result in the Test Results view.
+* Make changes to `src/test/extension.test.ts` or create new test files inside the `test` folder.
+  * The provided test runner will only consider files matching the name pattern `**.test.ts`.
+  * You can create folders inside the `test` folder to structure your tests any way you want.
+
+## Go further
+
+* Reduce the extension size and improve the startup time by [bundling your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension).
+* [Publish your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) on the VS Code extension marketplace.
+* Automate builds by setting up [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration).
+
+
+=========================================
+File: webpack.config.js
+=========================================
+
+//@ts-check
+
+'use strict';
+
+const path = require('path');
+
+//@ts-check
+/** @typedef {import('webpack').Configuration} WebpackConfig **/
+
+/** @type WebpackConfig */
+const extensionConfig = {
+  target: 'node', // VS Code extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
+	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
+
+  entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  output: {
+    // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'extension.js',
+    libraryTarget: 'commonjs2'
+  },
+  externals: {
+    vscode: 'commonjs vscode' // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
+    // modules added here also need to be added in the .vscodeignore file
+  },
+  resolve: {
+    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+    extensions: ['.ts', '.js']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'ts-loader'
+          }
+        ]
+      }
+    ]
+  },
+  devtool: 'nosources-source-map',
+  infrastructureLogging: {
+    level: "log", // enables logging required for problem matchers
+  },
+};
+module.exports = [ extensionConfig ];
+
