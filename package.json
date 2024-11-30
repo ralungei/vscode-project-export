@@ -3,6 +3,13 @@
   "publisher": "ralungei",
   "displayName": "Project Export",
   "description": "Export project code to clipboard",
+  "keywords": [
+    "export",
+    "clipboard",
+    "code",
+    "project",
+    "source code"
+  ],
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.95.0"
@@ -12,8 +19,14 @@
     "url": "https://github.com/ralungei/vscode-project-export.git"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Snippets",
+    "Programming Languages"
   ],
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
