@@ -1,7 +1,8 @@
 {
   "name": "project-export",
-  "displayName": "project-export",
-  "description": "Export project to clipboard",
+  "publisher": "ralungei",
+  "displayName": "Project Export",
+  "description": "Export project code to clipboard",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.95.0"
