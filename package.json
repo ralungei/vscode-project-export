@@ -26,10 +26,11 @@
     "Other",
     "Snippets",
     "Programming Languages",
-    "Formatters"
+    "Formatters",
+    "AI"
   ],
   "galleryBanner": {
-    "color": "#C80000",
+    "color": "#0f62fe",
     "theme": "dark"
   },
   "activationEvents": [
