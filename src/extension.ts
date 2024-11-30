@@ -1,14 +1,12 @@
-import { exec } from "child_process";
 import * as vscode from "vscode";
+import { ProjectExporter } from "./projectExporter";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Extension "project-export" is now active!');
-  vscode.window.showInformationMessage("Project Export extension is active!");
 
-  // Registrar el comando
   const exportCommand = vscode.commands.registerCommand(
     "project-export.exportProject",
-    () => {
+    async () => {
       const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
       if (!workspacePath) {
@@ -16,33 +14,53 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      exec(
-        "~/scripts/project2txt.sh",
-        { cwd: workspacePath },
-        (error, stdout, stderr) => {
-          if (error) {
-            vscode.window.showErrorMessage(`Error: ${error.message}`);
-            return;
-          }
-          vscode.window.showInformationMessage(
-            "Project exported to clipboard!"
-          );
-        }
-      );
+      try {
+        const exporter = new ProjectExporter(workspacePath);
+        await exporter.exportProject();
+      } catch (error) {
+        vscode.window.showErrorMessage(`Error exporting project: ${error}`);
+      }
     }
   );
 
-  // Crear el botón en la barra de estado (cambiado de Left a Right y añadida prioridad)
+  // Crear el botón en la barra de estado con alta prioridad
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
-    1000 // Alta prioridad para que aparezca más a la izquierda
+    100000 // Prioridad muy alta para asegurar que aparece al principio
   );
-  statusBarItem.text = "$(files) Export to Clipboard"; // Cambiado el icono y el texto
+
+  // Personalizar el aspecto del botón para hacerlo más visible
+  statusBarItem.text = "$(file-code) Copy Project Code ✨"; // Icono más llamativo
+
+  // Usar un color más prominente
   statusBarItem.backgroundColor = new vscode.ThemeColor(
     "statusBarItem.warningBackground"
-  ); // Añadido color
-  statusBarItem.tooltip = "Export project to clipboard"; // Añadido tooltip
-  statusBarItem.command = "project-export.exportProject";
+  );
+
+  statusBarItem.color = new vscode.ThemeColor(
+    "statusBarItem.prominentForeground"
+  );
+
+  // Tooltip mejorado con más información
+  statusBarItem.tooltip = [
+    "Export Project Code to Clipboard",
+    "────────────────────────",
+    "• Filters files by extension",
+    "• Excludes common dev folders",
+    "• Creates a temporary backup file",
+  ].join("\n");
+
+  // Nombre más descriptivo para accesibilidad
+  statusBarItem.name = "Export Project Code";
+
+  // Comando enriquecido
+  statusBarItem.command = {
+    title: "Export Project Code",
+    command: "project-export.exportProject",
+    tooltip: "Export filtered project files to clipboard with backup",
+  };
+
+  // Mostrar el botón
   statusBarItem.show();
 
   context.subscriptions.push(exportCommand, statusBarItem);

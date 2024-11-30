@@ -33,7 +33,7 @@ Automatically includes relevant source files while excluding:
 
 ## Support
 
-Found a bug or have a feature request? Visit our [GitHub repository](https://github.com/ralungei/ai-project-export-pro).
+Found a bug or have a feature request? Visit our [GitHub repository](https://github.com/ralungei/vscode-project-export).
 
 ## License
 
