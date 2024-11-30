@@ -2,7 +2,7 @@
   "name": "ai-project-export-pro",
   "publisher": "rasbuzz",
   "displayName": "AI Project Export Pro",
-  "description": "Professional-grade tool to export your project's code in an optimized format for AI models",
+  "description": "Stop copy-pasting for ChatGPT... One click = whole project exported. Done.",
   "keywords": [
     "project export",
     "ai",
@@ -14,6 +14,7 @@
     "documentation"
   ],
   "version": "0.0.5",
+  "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -40,7 +41,7 @@
       {
         "command": "project-export.exportProject",
         "title": "Export Project",
-        "icon": "resources/icon.png"
+        "icon": "resources/export-icon.svg"
       }
     ]
   },
