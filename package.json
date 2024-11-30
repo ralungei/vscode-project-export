@@ -1,14 +1,17 @@
 {
-  "name": "project-export",
+  "name": "ai-project-export-pro",
   "publisher": "rasbuzz",
-  "displayName": "Project Export",
-  "description": "Export project code to clipboard",
+  "displayName": "AI Project Export Pro",
+  "description": "Professional-grade tool to export your project's code in an optimized format for AI models",
   "keywords": [
-    "export",
-    "clipboard",
-    "code",
-    "project",
-    "source code"
+    "project export",
+    "ai",
+    "chatgpt",
+    "claude",
+    "code export",
+    "professional",
+    "source code",
+    "documentation"
   ],
   "version": "0.0.2",
   "engines": {
@@ -21,7 +24,8 @@
   "categories": [
     "Other",
     "Snippets",
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters"
   ],
   "galleryBanner": {
     "color": "#C80000",
