@@ -11,8 +11,39 @@ export interface ExportConfig {
 }
 
 export const DEFAULT_CONFIG: ExportConfig = {
-  includeExtensions: ["js", "jsx", "ts", "tsx", "html", "md", "py", "pyi"],
-  excludeExtensions: ["css", "scss", "json", "yaml", "yml", "lock", "env"],
+  includeExtensions: [
+    "js",
+    "jsx",
+    "ts",
+    "tsx",
+    "html",
+    "md",
+    "py",
+    "pyi",
+    "jade",
+    "pug",
+    "vue",
+    "svelte",
+    "php",
+    "rb",
+    "go",
+    "java",
+    "c",
+    "cpp",
+    "h",
+    "hpp",
+    "cs",
+    "swift",
+    "kt",
+    "rs",
+    "sh",
+    "bash",
+    "css",
+    "less",
+    "scss",
+    "sass",
+  ],
+  excludeExtensions: ["json", "yaml", "yml", "lock", "env"],
   excludeFiles: ["package-lock.json", "poetry.lock"],
   excludeDirectories: [
     "node_modules",
@@ -62,11 +93,56 @@ export class ProjectExporter {
     }
   }
 
-  private async generateExport(): Promise<string> {
+  async generateExport(): Promise<string> {
+    // Obtener el nombre de la carpeta que estamos exportando
+    const folderName = path.basename(this.workspacePath);
+
     let output = "Project Code Export\n";
-    output += `Date: ${new Date().toString()}\n\n`;
+    output += `Date: ${new Date().toString()}\n`;
+    output += `Exported Folder: ${folderName}\n\n`;
+
+    // Añadir la estructura de carpetas al principio
+    output += "Project Structure:\n";
+    output += `📁 ${folderName}/\n`;
+    output += await this.generateFileStructure(this.workspacePath, "  ");
+    output += "\n";
+
     output += await this.traverseDirectory(this.workspacePath);
     return output;
+  }
+
+  private async generateFileStructure(
+    dirPath: string,
+    indent: string
+  ): Promise<string> {
+    let structure = "";
+    const items = await fs.promises.readdir(dirPath);
+
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item);
+      const stat = await fs.promises.stat(fullPath);
+
+      if (stat.isDirectory()) {
+        // Se usa path.basename para comparar solo el nombre de la carpeta
+        if (
+          !this.config.excludeDirectories.some(
+            (dir) => path.basename(fullPath) === dir
+          )
+        ) {
+          structure += `${indent}📁 ${item}/\n`;
+          structure += await this.generateFileStructure(
+            fullPath,
+            indent + "  "
+          );
+        }
+      } else if (stat.isFile()) {
+        if (this.shouldIncludeFile(item)) {
+          structure += `${indent}📄 ${item}\n`;
+        }
+      }
+    }
+
+    return structure;
   }
 
   private async traverseDirectory(dirPath: string): Promise<string> {
@@ -78,8 +154,11 @@ export class ProjectExporter {
       const stat = await fs.promises.stat(fullPath);
 
       if (stat.isDirectory()) {
+        // Se aplica la misma comprobación exacta para directorios
         if (
-          !this.config.excludeDirectories.some((dir) => fullPath.includes(dir))
+          !this.config.excludeDirectories.some(
+            (dir) => path.basename(fullPath) === dir
+          )
         ) {
           content += await this.traverseDirectory(fullPath);
         }

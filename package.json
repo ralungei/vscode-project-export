@@ -13,7 +13,7 @@
     "source code",
     "documentation"
   ],
-  "version": "0.0.9",
+  "version": "1.1.0",
   "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.95.0"
@@ -41,10 +41,22 @@
     "commands": [
       {
         "command": "project-export.exportProject",
-        "title": "Export Project",
-        "icon": "resources/export-icon.svg"
+        "title": "Export Project Code to Clipboard"
+      },
+      {
+        "command": "project-export.exportFolder",
+        "title": "Export Folder Code to Clipboard"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "project-export.exportFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "export"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

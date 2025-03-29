@@ -1,11 +1,12 @@
+import * as path from "path";
 import * as vscode from "vscode";
 import { ProjectExporter } from "./projectExporter";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Extension "project-export" is now active!');
 
-  const exportCommand = vscode.commands.registerCommand(
-    "project-export.exportProject",
+  const exportProjectCommand = vscode.commands.registerCommand(
+    "ai-project-export-pro.exportProject",
     async () => {
       const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
@@ -23,6 +24,26 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  const exportFolderCommand = vscode.commands.registerCommand(
+    "project-export.exportFolder",
+    async (uri: vscode.Uri) => {
+      if (!uri || !uri.fsPath) {
+        vscode.window.showErrorMessage("No folder selected");
+        return;
+      }
+
+      try {
+        const exporter = new ProjectExporter(uri.fsPath);
+        await exporter.exportProject();
+        vscode.window.showInformationMessage(
+          `Folder exported: ${path.basename(uri.fsPath)}`
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage(`Error exporting folder: ${error}`);
+      }
+    }
+  );
+
   // Crear el botón en la barra de estado con alta prioridad
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
@@ -34,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Usar un color más prominente
   statusBarItem.backgroundColor = new vscode.ThemeColor(
-    "statusBarItem.warningBackground"
+    "statusBarItem.infoBackground"
   );
 
   statusBarItem.color = new vscode.ThemeColor(
@@ -56,14 +77,18 @@ export function activate(context: vscode.ExtensionContext) {
   // Comando enriquecido
   statusBarItem.command = {
     title: "Export Project Code",
-    command: "project-export.exportProject",
+    command: "ai-project-export-pro.exportProject",
     tooltip: "Export filtered project files to clipboard with backup",
   };
 
   // Mostrar el botón
   statusBarItem.show();
 
-  context.subscriptions.push(exportCommand, statusBarItem);
+  context.subscriptions.push(
+    exportProjectCommand,
+    exportFolderCommand,
+    statusBarItem
+  );
 }
 
 export function deactivate() {}
