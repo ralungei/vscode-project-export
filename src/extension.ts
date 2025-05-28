@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { ProjectExporter } from "./projectExporter";
@@ -6,7 +7,7 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('Extension "project-export" is now active!');
 
   const exportProjectCommand = vscode.commands.registerCommand(
-    "ai-project-export-pro.exportProject",
+    "project-export.exportProject",
     async () => {
       const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
@@ -44,6 +45,61 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+
+  const exportSelectionCommand = vscode.commands.registerCommand(
+    "project-export.exportSelection", 
+    async (clickedUri?: vscode.Uri, selectedUrisFromExplorer?: vscode.Uri[]) => {
+      const urisToExport = selectedUrisFromExplorer && selectedUrisFromExplorer.length > 0
+          ? selectedUrisFromExplorer
+          : clickedUri ? [clickedUri] : [];
+
+      if (urisToExport.length === 0) {
+        vscode.window.showInformationMessage("No files or folders selected.");
+        return;
+      }
+
+      let baseWorkspacePathForContext: string | undefined;
+      const firstUri = urisToExport[0];
+
+      if (firstUri) {
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(firstUri);
+        if (workspaceFolder) {
+          baseWorkspacePathForContext = workspaceFolder.uri.fsPath;
+        } else {
+          try {
+            const stats = await fs.promises.stat(firstUri.fsPath);
+            baseWorkspacePathForContext = stats.isDirectory() ? firstUri.fsPath : path.dirname(firstUri.fsPath);
+          } catch (e) {
+             baseWorkspacePathForContext = path.dirname(firstUri.fsPath); // Fallback
+          }
+        }
+      }
+
+      if (!baseWorkspacePathForContext && vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        baseWorkspacePathForContext = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      }
+
+      if (!baseWorkspacePathForContext) {
+        vscode.window.showErrorMessage("Could not determine a base context for export.");
+        return;
+      }
+
+      try {
+        const exporter = new ProjectExporter(baseWorkspacePathForContext);
+        const absolutePathsToExport = urisToExport.map(uri => uri.fsPath);
+        const output = await exporter.generateExportForSelectedItems(absolutePathsToExport);
+        await vscode.env.clipboard.writeText(output);
+        vscode.window.showInformationMessage(
+          `${urisToExport.length} selected item(s) exported to clipboard!`
+        );
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        vscode.window.showErrorMessage(`Error exporting selection: ${errorMessage}`);
+      }
+    }
+  );
+
+
   // Crear el botón en la barra de estado con alta prioridad
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
@@ -77,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Comando enriquecido
   statusBarItem.command = {
     title: "Export Project Code",
-    command: "ai-project-export-pro.exportProject",
+    command: "ai-project-export.exportProject",
     tooltip: "Export filtered project files to clipboard with backup",
   };
 
@@ -87,6 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     exportProjectCommand,
     exportFolderCommand,
+    exportSelectionCommand,
     statusBarItem
   );
 }

@@ -111,6 +111,41 @@ export class ProjectExporter {
     return output;
   }
 
+  public async generateExportForSelectedItems(selectedAbsolutePaths: string[]): Promise<string> {
+    if (!selectedAbsolutePaths || selectedAbsolutePaths.length === 0) {
+      return "No items selected for export.";
+    }
+
+    let output = `Project Code Export (Selection)\n`; // Consistent header
+    output += `Date: ${new Date().toString()}\n`;
+    output += `Exported Items: ${selectedAbsolutePaths.length}\n`;
+    output += `Context for relative file paths: ${path.basename(this.workspacePath)}\n\n`;
+
+    let structureOutput = "Selected Structure (paths relative to context if possible):\n";
+    let contentOutput = "";
+
+    for (const itemAbsolutePath of selectedAbsolutePaths) {
+      const itemName = path.basename(itemAbsolutePath);
+      const displayPath = path.relative(this.workspacePath, itemAbsolutePath);
+      const stats = await fs.promises.stat(itemAbsolutePath);
+
+      if (stats.isDirectory()) {
+        structureOutput += `📁 ${displayPath}/\n`;
+        structureOutput += await this.generateFileStructure(itemAbsolutePath, "  ");
+        contentOutput += await this.traverseDirectory(itemAbsolutePath);
+      } else if (stats.isFile()) {
+        if (this.shouldIncludeFile(itemName)) {
+          structureOutput += `📄 ${displayPath}\n`;
+          contentOutput += await this.formatFileContent(itemAbsolutePath);
+        } else {
+          structureOutput += `📄 ${displayPath} (skipped - filter)\n`;
+        }
+      }
+    }
+    output += structureOutput + "\n" + contentOutput;
+    return output;
+  }
+
   private async generateFileStructure(
     dirPath: string,
     indent: string

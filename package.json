@@ -46,14 +46,23 @@
       {
         "command": "project-export.exportFolder",
         "title": "Export Folder Code to Clipboard"
+      },
+      {
+        "command": "project-export.exportSelection", 
+        "title": "Export Selection to Clipboard"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "project-export.exportFolder",
+          "command": "project-export.exportFolder", 
           "when": "explorerResourceIsFolder",
-          "group": "export"
+          "group": "export" 
+        },
+        {
+          "command": "project-export.exportSelection", 
+          "when": "resourceScheme == 'file'",          
+          "group": "export" 
         }
       ]
     }
