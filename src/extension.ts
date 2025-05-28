@@ -133,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Comando enriquecido
   statusBarItem.command = {
     title: "Export Project Code",
-    command: "ai-project-export.exportProject",
+    command: "project-export.exportProject",
     tooltip: "Export filtered project files to clipboard with backup",
   };
 
