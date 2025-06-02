@@ -13,7 +13,7 @@
     "source code",
     "documentation"
   ],
-  "version": "1.1.1",
+  "version": "2.0.0",
   "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.95.0"
@@ -46,6 +46,30 @@
       {
         "command": "project-export.exportFolder",
         "title": "Export Folder Code to Clipboard"
+      },
+      {
+        "command": "project-export.includeFile",
+        "title": "Include in Export"
+      },
+      {
+        "command": "project-export.excludeFile",
+        "title": "Exclude from Export"
+      },
+      {
+        "command": "project-export.includeSelectedFiles",
+        "title": "Include Selected Files in Export"
+      },
+      {
+        "command": "project-export.excludeSelectedFiles",
+        "title": "Exclude Selected Files from Export"
+      },
+      {
+        "command": "project-export.includeFolderFiles",
+        "title": "Include All Files in Folder"
+      },
+      {
+        "command": "project-export.excludeFolderFiles",
+        "title": "Exclude All Files in Folder"
       }
     ],
     "menus": {
@@ -54,9 +78,50 @@
           "command": "project-export.exportFolder",
           "when": "explorerResourceIsFolder",
           "group": "export"
+        },
+        {
+          "command": "project-export.includeFile",
+          "when": "!explorerResourceIsFolder && !listMultiSelection",
+          "group": "export@1"
+        },
+        {
+          "command": "project-export.excludeFile",
+          "when": "!explorerResourceIsFolder && !listMultiSelection",
+          "group": "export@2"
+        },
+        {
+          "command": "project-export.includeSelectedFiles",
+          "when": "!explorerResourceIsFolder && listMultiSelection",
+          "group": "export@1"
+        },
+        {
+          "command": "project-export.excludeSelectedFiles",
+          "when": "!explorerResourceIsFolder && listMultiSelection",
+          "group": "export@2"
+        },
+        {
+          "command": "project-export.includeFolderFiles",
+          "when": "explorerResourceIsFolder",
+          "group": "export@1"
+        },
+        {
+          "command": "project-export.excludeFolderFiles",
+          "when": "explorerResourceIsFolder",
+          "group": "export@2"
         }
       ]
-    }
+    },
+    "colors": [
+      {
+        "id": "projectExport.includedFile",
+        "description": "Color for files that will be exported",
+        "defaults": {
+          "dark": "#2196F3",
+          "light": "#1976D2",
+          "highContrast": "#00BFFF"
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

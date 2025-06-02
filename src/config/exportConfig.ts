@@ -1,0 +1,53 @@
+import {
+  ARCHIVE_EXTENSIONS,
+  BINARY_EXTENSIONS,
+  BUILD_DIRECTORIES,
+  CACHE_DIRECTORIES,
+  CACHE_EXTENSIONS,
+  DATABASE_EXTENSIONS,
+  DEPENDENCY_DIRECTORIES,
+  ENV_FILES,
+  FONT_EXTENSIONS,
+  FRAMEWORK_DIRECTORIES,
+  IDE_DIRECTORIES,
+  LOCK_FILES,
+  LOG_DIRECTORIES,
+  MEDIA_EXTENSIONS,
+  OFFICE_EXTENSIONS,
+  PACKAGE_MANAGER_DIRECTORIES,
+  SYSTEM_FILES,
+  TEST_DIRECTORIES,
+  VCS_DIRECTORIES,
+} from "./fileTypes";
+
+export interface ExportConfig {
+  excludeExtensions: string[];
+  excludeFiles: string[];
+  excludeDirectories: string[];
+  maxFileSizeBytes: number;
+}
+
+export const DEFAULT_CONFIG: ExportConfig = {
+  excludeExtensions: [
+    ...BINARY_EXTENSIONS,
+    ...MEDIA_EXTENSIONS,
+    ...ARCHIVE_EXTENSIONS,
+    ...CACHE_EXTENSIONS,
+    ...DATABASE_EXTENSIONS,
+    ...OFFICE_EXTENSIONS,
+    ...FONT_EXTENSIONS,
+  ],
+  excludeFiles: [...LOCK_FILES, ...ENV_FILES, ...SYSTEM_FILES],
+  excludeDirectories: [
+    ...DEPENDENCY_DIRECTORIES,
+    ...BUILD_DIRECTORIES,
+    ...FRAMEWORK_DIRECTORIES,
+    ...CACHE_DIRECTORIES,
+    ...TEST_DIRECTORIES,
+    ...VCS_DIRECTORIES,
+    ...IDE_DIRECTORIES,
+    ...PACKAGE_MANAGER_DIRECTORIES,
+    ...LOG_DIRECTORIES,
+  ],
+  maxFileSizeBytes: 1024 * 1024,
+};

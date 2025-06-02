@@ -2,6 +2,49 @@
 
 All notable changes to the "AI Project Export Pro" extension will be documented in this file.
 
+## [2.0.0] - 2025-06-02
+
+### Added
+
+- **🎯 Manual File Control System**: Revolutionary file inclusion/exclusion system
+
+  - Right-click context menu options for individual files: "Include in Export" / "Exclude from Export"
+  - Multi-selection support: Select multiple files and include/exclude them all at once
+  - Folder-level control: Include or exclude all files within a folder with one click
+  - Visual file decorations: Files included in export now show a ⚡ badge in the explorer
+  - Persistent exceptions: Your manual selections are saved in `.vscode/project-export.json`
+
+- **📁 Enhanced File Structure Generation**:
+
+  - Intelligent folder summarization for large directories (>50 files)
+  - Blacklisted directories (node_modules, .git, etc.) show item count instead of full content
+  - Better visual representation of project structure
+
+- **🔧 Advanced Configuration System**:
+
+  - Comprehensive file type filtering with categorized exclusions
+  - File size limits (1MB default) to prevent large files from breaking exports
+  - Modular configuration split across multiple files for better maintainability
+
+- **⚡ Smart Export Logic**:
+  - Force include/exclude system overrides default filtering rules
+  - Batch operations for multiple files and folders
+  - Improved error handling for unreadable files/directories
+
+### Changed
+
+- **Complete codebase refactoring**: Split into modular components for better maintainability
+- **Enhanced filtering system**: Now uses whitelist approach (include by default) instead of extension-based filtering
+- **Improved user experience**: More intuitive file selection with visual feedback
+- **Better performance**: Optimized directory traversal and file processing
+
+### Technical Improvements
+
+- New `ExceptionsManager` class for handling manual file inclusions/exclusions
+- `FileDecorationProvider` for visual file status indicators
+- Comprehensive file type definitions in separate configuration modules
+- Better error handling and user feedback throughout the extension
+
 ## [1.1.0] - 2025-03-26
 
 ### Added

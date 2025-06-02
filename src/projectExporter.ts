@@ -2,87 +2,28 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-
-export interface ExportConfig {
-  includeExtensions: string[];
-  excludeExtensions: string[];
-  excludeFiles: string[];
-  excludeDirectories: string[];
-}
-
-export const DEFAULT_CONFIG: ExportConfig = {
-  includeExtensions: [
-    "js",
-    "jsx",
-    "ts",
-    "tsx",
-    "html",
-    "md",
-    "py",
-    "pyi",
-    "jade",
-    "pug",
-    "vue",
-    "svelte",
-    "php",
-    "rb",
-    "go",
-    "java",
-    "c",
-    "cpp",
-    "h",
-    "hpp",
-    "cs",
-    "swift",
-    "kt",
-    "rs",
-    "sh",
-    "bash",
-    "css",
-    "less",
-    "scss",
-    "sass",
-  ],
-  excludeExtensions: ["json", "yaml", "yml", "lock", "env"],
-  excludeFiles: ["package-lock.json", "poetry.lock"],
-  excludeDirectories: [
-    "node_modules",
-    ".git",
-    "__pycache__",
-    ".venv",
-    ".poetry",
-    "venv",
-    "build",
-    "dist",
-    ".next",
-    ".cache",
-    "coverage",
-    ".pytest_cache",
-    ".mypy_cache",
-    ".yarn",
-  ],
-};
+import { DEFAULT_CONFIG, ExportConfig } from "./config/exportConfig";
+import { isBlacklistedDirectory } from "./config/folderBlacklist";
+import { ExceptionsManager } from "./exceptionsManager";
 
 export class ProjectExporter {
   private readonly workspacePath: string;
   private readonly config: ExportConfig;
   private readonly tempFilePath: string;
+  private readonly exceptionsManager: ExceptionsManager;
 
   constructor(workspacePath: string, config: ExportConfig = DEFAULT_CONFIG) {
     this.workspacePath = workspacePath;
     this.config = config;
-    // Crear el archivo temporal en el directorio temporal del sistema
     this.tempFilePath = path.join(os.tmpdir(), ".project_export.tmp");
+    this.exceptionsManager = new ExceptionsManager(workspacePath);
   }
 
   async exportProject(): Promise<void> {
     try {
       const output = await this.generateExport();
 
-      // Guardar en archivo temporal
       await fs.promises.writeFile(this.tempFilePath, output, "utf8");
-
-      // Copiar al portapapeles
       await vscode.env.clipboard.writeText(output);
 
       vscode.window.showInformationMessage(
@@ -94,14 +35,12 @@ export class ProjectExporter {
   }
 
   async generateExport(): Promise<string> {
-    // Obtener el nombre de la carpeta que estamos exportando
     const folderName = path.basename(this.workspacePath);
 
     let output = "Project Code Export\n";
     output += `Date: ${new Date().toString()}\n`;
     output += `Exported Folder: ${folderName}\n\n`;
 
-    // Añadir la estructura de carpetas al principio
     output += "Project Structure:\n";
     output += `📁 ${folderName}/\n`;
     output += await this.generateFileStructure(this.workspacePath, "  ");
@@ -116,33 +55,98 @@ export class ProjectExporter {
     indent: string
   ): Promise<string> {
     let structure = "";
-    const items = await fs.promises.readdir(dirPath);
 
-    for (const item of items) {
-      const fullPath = path.join(dirPath, item);
-      const stat = await fs.promises.stat(fullPath);
+    try {
+      const items = await fs.promises.readdir(dirPath);
 
-      if (stat.isDirectory()) {
-        // Se usa path.basename para comparar solo el nombre de la carpeta
-        if (
-          !this.config.excludeDirectories.some(
-            (dir) => path.basename(fullPath) === dir
-          )
-        ) {
-          structure += `${indent}📁 ${item}/\n`;
-          structure += await this.generateFileStructure(
-            fullPath,
-            indent + "  "
-          );
-        }
-      } else if (stat.isFile()) {
-        if (this.shouldIncludeFile(item)) {
-          structure += `${indent}📄 ${item}\n`;
+      for (const item of items) {
+        const fullPath = path.join(dirPath, item);
+
+        try {
+          const stat = await fs.promises.stat(fullPath);
+
+          if (stat.isDirectory()) {
+            // Verificar si la carpeta está en la blacklist
+            if (isBlacklistedDirectory(item)) {
+              const subItems = await fs.promises.readdir(fullPath);
+              structure += `${indent}📁 ${item}/ (${subItems.length} items)\n`;
+              structure += `${indent}  📄 ...\n`;
+              continue;
+            }
+
+            const subItems = await fs.promises.readdir(fullPath);
+
+            // Si la carpeta tiene más de 50 elementos, no exploramos dentro
+            if (subItems.length > 50) {
+              structure += `${indent}📁 ${item}/ (${subItems.length} items)\n`;
+              structure += `${indent}  📄 ...\n`;
+            } else {
+              structure += `${indent}📁 ${item}/\n`;
+              structure += await this.generateFileStructure(
+                fullPath,
+                indent + "  "
+              );
+            }
+          } else if (stat.isFile()) {
+            structure += `${indent}📄 ${item}\n`;
+          }
+        } catch (error) {
+          // Ignorar archivos/carpetas que no se puedan leer
+          continue;
         }
       }
+    } catch (error) {
+      // Ignorar carpetas que no se puedan leer
     }
 
     return structure;
+  }
+
+  private async isFolderCompletelyIncluded(
+    folderPath: string
+  ): Promise<boolean> {
+    try {
+      const allFiles = await this.getAllFilesInFolder(folderPath);
+
+      if (allFiles.length === 0) {
+        return false;
+      }
+
+      for (const filePath of allFiles) {
+        const relativePath = path.relative(this.workspacePath, filePath);
+        if (!this.shouldIncludeFile(relativePath)) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private async getAllFilesInFolder(folderPath: string): Promise<string[]> {
+    const files: string[] = [];
+
+    try {
+      const items = await fs.promises.readdir(folderPath);
+
+      for (const item of items) {
+        const fullPath = path.join(folderPath, item);
+        const stat = await fs.promises.stat(fullPath);
+
+        if (stat.isDirectory()) {
+          const subFiles = await this.getAllFilesInFolder(fullPath);
+          files.push(...subFiles);
+        } else if (stat.isFile()) {
+          files.push(fullPath);
+        }
+      }
+    } catch (error) {
+      // Ignorar errores de lectura
+    }
+
+    return files;
   }
 
   private async traverseDirectory(dirPath: string): Promise<string> {
@@ -154,7 +158,6 @@ export class ProjectExporter {
       const stat = await fs.promises.stat(fullPath);
 
       if (stat.isDirectory()) {
-        // Se aplica la misma comprobación exacta para directorios
         if (
           !this.config.excludeDirectories.some(
             (dir) => path.basename(fullPath) === dir
@@ -163,7 +166,8 @@ export class ProjectExporter {
           content += await this.traverseDirectory(fullPath);
         }
       } else if (stat.isFile()) {
-        if (this.shouldIncludeFile(item)) {
+        const relativePath = path.relative(this.workspacePath, fullPath);
+        if (this.shouldIncludeFile(relativePath)) {
           content += await this.formatFileContent(fullPath);
         }
       }
@@ -172,18 +176,43 @@ export class ProjectExporter {
     return content;
   }
 
-  private shouldIncludeFile(filename: string): boolean {
+  shouldIncludeFile(relativePath: string): boolean {
+    // Primero verificar excepciones manuales
+    if (this.exceptionsManager.isForceIncluded(relativePath)) {
+      return true;
+    }
+
+    if (this.exceptionsManager.isForceExcluded(relativePath)) {
+      return false;
+    }
+
+    const filename = path.basename(relativePath);
     const extension = path.extname(filename).slice(1).toLowerCase();
 
+    // Verificar archivos específicos excluidos
     if (this.config.excludeFiles.includes(filename)) {
       return false;
     }
 
+    // Verificar extensiones excluidas
     if (this.config.excludeExtensions.includes(extension)) {
       return false;
     }
 
-    return this.config.includeExtensions.includes(extension);
+    // Verificar tamaño del archivo
+    try {
+      const fullPath = path.join(this.workspacePath, relativePath);
+      const stat = fs.statSync(fullPath);
+      if (stat.size > this.config.maxFileSizeBytes) {
+        return false;
+      }
+    } catch (error) {
+      // Si no podemos leer el archivo, lo excluimos
+      return false;
+    }
+
+    // Por defecto, incluir el archivo
+    return true;
   }
 
   private async formatFileContent(filePath: string): Promise<string> {
@@ -192,9 +221,17 @@ export class ProjectExporter {
     content += `File: ${relativePath}\n`;
     content += "=========================================\n\n";
 
-    const fileContent = await fs.promises.readFile(filePath, "utf8");
-    content += fileContent + "\n\n";
+    try {
+      const fileContent = await fs.promises.readFile(filePath, "utf8");
+      content += fileContent + "\n\n";
+    } catch (error) {
+      content += `[Error reading file: ${error}]\n\n`;
+    }
 
     return content;
+  }
+
+  getExceptionsManager(): ExceptionsManager {
+    return this.exceptionsManager;
   }
 }
