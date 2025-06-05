@@ -38,6 +38,14 @@ All notable changes to the "AI Project Export Pro" extension will be documented 
 - **Improved user experience**: More intuitive file selection with visual feedback
 - **Better performance**: Optimized directory traversal and file processing
 
+### Updated
+
+- **Rebranding**: Extension name changed to "ChatGPT & Claude Code Exporter" for better AI tool alignment
+- **Enhanced Documentation**: Comprehensive README with feature highlights, quick start guide, and configuration details
+- **Visual Improvements**: File decoration badge changed from ⚡ to ⚀ for better distinction
+- **Command Consistency**: All command IDs now use standardized `ai-project-export-pro` prefix
+- **Marketplace Optimization**: Updated keywords and description for improved discoverability
+
 ### Technical Improvements
 
 - New `ExceptionsManager` class for handling manual file inclusions/exclusions
