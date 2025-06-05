@@ -295,7 +295,7 @@ export function activate(context: vscode.ExtensionContext) {
     100000
   );
 
-  statusBarItem.text = "$(file-code) Copy Project Code Now ✨";
+  statusBarItem.text = "$(file-code) Copy Project Code ✨";
 
   statusBarItem.backgroundColor = new vscode.ThemeColor(
     "statusBarItem.infoBackground"

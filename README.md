@@ -19,7 +19,7 @@
 | 🧠  | **Smart Structure Preview** | Auto‑generated tree at the top of the export; large (> 50 files) or black‑listed folders are summarised for readability.       |
 | 🚀  | **Advanced Filtering**      | Binary/media/DB assets, build, cache, test, VCS & IDE folders auto‑skipped. Whitelist logic ensures nothing vital is lost.     |
 | ⚙️  | **Customisable Limits**     | Tweak max file size (default 1 MB), excluded patterns & more in Settings or `src/config`.                                      |
-| 🖥️  | **Status‑Bar Integration**  | “Copy Project Code Now ✨” button is always at hand.                                                                           |
+| 🖥️  | **Status‑Bar Integration**  | “Copy Project Code ✨” button is always at hand.                                                                               |
 | 🏷️  | **File Decorations**        | A ⚀ badge marks every file that will be exported—instant visual feedback.                                                      |
 | 📋  | **Clipboard + Backup**      | Result copied to clipboard **and** written to a temp file (`~/.project_export.tmp`) for peace of mind.                         |
 
