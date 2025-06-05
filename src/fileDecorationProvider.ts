@@ -37,8 +37,8 @@ export class FileDecorationProvider implements vscode.FileDecorationProvider {
 
     if (this.exporter.shouldIncludeFile(relativePath)) {
       return {
-        badge: "⚡",
-        // color: new vscode.ThemeColor("projectExport.includedFile"),
+        badge: "⚀",
+        // color: new vscode.ThemeColor("terminal.ansiYellow"), // ← Color SOLO para el badge
         tooltip: "This file will be exported to clipboard",
       };
     }

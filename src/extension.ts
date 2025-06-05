@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const exportFolderCommand = vscode.commands.registerCommand(
-    "project-export.exportFolder",
+    "ai-project-export-pro.exportFolder",
     async (uri: vscode.Uri) => {
       if (!uri || !uri.fsPath) {
         vscode.window.showErrorMessage("No folder selected");
@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const includeFileCommand = vscode.commands.registerCommand(
-    "project-export.includeFile",
+    "ai-project-export-pro.includeFile",
     async (uri: vscode.Uri) => {
       if (!uri || !uri.fsPath || !globalExporter) {
         vscode.window.showErrorMessage(
@@ -91,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const excludeFileCommand = vscode.commands.registerCommand(
-    "project-export.excludeFile",
+    "ai-project-export-pro.excludeFile",
     async (uri: vscode.Uri) => {
       if (!uri || !uri.fsPath || !globalExporter) {
         vscode.window.showErrorMessage(
@@ -127,7 +127,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const includeSelectedFilesCommand = vscode.commands.registerCommand(
-    "project-export.includeSelectedFiles",
+    "ai-project-export-pro.includeSelectedFiles",
     async (uri: vscode.Uri, allSelected: vscode.Uri[]) => {
       const uris = allSelected && allSelected.length > 0 ? allSelected : [uri];
 
@@ -168,7 +168,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const excludeSelectedFilesCommand = vscode.commands.registerCommand(
-    "project-export.excludeSelectedFiles",
+    "ai-project-export-pro.excludeSelectedFiles",
     async (uri: vscode.Uri, allSelected: vscode.Uri[]) => {
       const uris = allSelected && allSelected.length > 0 ? allSelected : [uri];
 
@@ -209,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const includeFolderFilesCommand = vscode.commands.registerCommand(
-    "project-export.includeFolderFiles",
+    "ai-project-export-pro.includeFolderFiles",
     async (uri: vscode.Uri) => {
       if (!uri || !uri.fsPath || !globalExporter) {
         vscode.window.showErrorMessage(
@@ -250,7 +250,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const excludeFolderFilesCommand = vscode.commands.registerCommand(
-    "project-export.excludeFolderFiles",
+    "ai-project-export-pro.excludeFolderFiles",
     async (uri: vscode.Uri) => {
       if (!uri || !uri.fsPath || !globalExporter) {
         vscode.window.showErrorMessage(

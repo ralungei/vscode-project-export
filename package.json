@@ -1,17 +1,18 @@
 {
   "name": "ai-project-export-pro",
   "publisher": "rasbuzz",
-  "displayName": "AI Project Export Pro",
-  "description": "Stop copy-pasting for ChatGPT... One click = whole project exported. Done.",
+  "displayName": "ChatGPT & Claude Code Exporter",
+  "description": "Stop copy-pasting for ChatGPT... One click = whole project exported. Done. ⚀",
   "keywords": [
-    "project export",
-    "ai",
     "chatgpt",
     "claude",
+    "ai",
+    "llm",
+    "clipboard",
     "code export",
-    "professional",
-    "source code",
-    "documentation"
+    "context",
+    "markdown",
+    "vscode"
   ],
   "version": "2.0.0",
   "icon": "resources/icon.png",
@@ -40,72 +41,72 @@
   "contributes": {
     "commands": [
       {
-        "command": "project-export.exportProject",
+        "command": "ai-project-export-pro.exportProject",
         "title": "Export Project Code to Clipboard"
       },
       {
-        "command": "project-export.exportFolder",
+        "command": "ai-project-export-pro.exportFolder",
         "title": "Export Folder Code to Clipboard"
       },
       {
-        "command": "project-export.includeFile",
+        "command": "ai-project-export-pro.includeFile",
         "title": "Include in Export"
       },
       {
-        "command": "project-export.excludeFile",
+        "command": "ai-project-export-pro.excludeFile",
         "title": "Exclude from Export"
       },
       {
-        "command": "project-export.includeSelectedFiles",
+        "command": "ai-project-export-pro.includeSelectedFiles",
         "title": "Include Selected Files in Export"
       },
       {
-        "command": "project-export.excludeSelectedFiles",
+        "command": "ai-project-export-pro.excludeSelectedFiles",
         "title": "Exclude Selected Files from Export"
       },
       {
-        "command": "project-export.includeFolderFiles",
+        "command": "ai-project-export-pro.includeFolderFiles",
         "title": "Include All Files in Folder"
       },
       {
-        "command": "project-export.excludeFolderFiles",
+        "command": "ai-project-export-pro.excludeFolderFiles",
         "title": "Exclude All Files in Folder"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "project-export.exportFolder",
+          "command": "ai-project-export-pro.exportFolder",
           "when": "explorerResourceIsFolder",
           "group": "export"
         },
         {
-          "command": "project-export.includeFile",
+          "command": "ai-project-export-pro.includeFile",
           "when": "!explorerResourceIsFolder && !listMultiSelection",
           "group": "export@1"
         },
         {
-          "command": "project-export.excludeFile",
+          "command": "ai-project-export-pro.excludeFile",
           "when": "!explorerResourceIsFolder && !listMultiSelection",
           "group": "export@2"
         },
         {
-          "command": "project-export.includeSelectedFiles",
+          "command": "ai-project-export-pro.includeSelectedFiles",
           "when": "!explorerResourceIsFolder && listMultiSelection",
           "group": "export@1"
         },
         {
-          "command": "project-export.excludeSelectedFiles",
+          "command": "ai-project-export-pro.excludeSelectedFiles",
           "when": "!explorerResourceIsFolder && listMultiSelection",
           "group": "export@2"
         },
         {
-          "command": "project-export.includeFolderFiles",
+          "command": "ai-project-export-pro.includeFolderFiles",
           "when": "explorerResourceIsFolder",
           "group": "export@1"
         },
         {
-          "command": "project-export.excludeFolderFiles",
+          "command": "ai-project-export-pro.excludeFolderFiles",
           "when": "explorerResourceIsFolder",
           "group": "export@2"
         }
