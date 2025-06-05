@@ -158,13 +158,7 @@ export class ProjectExporter {
       const stat = await fs.promises.stat(fullPath);
 
       if (stat.isDirectory()) {
-        if (
-          !this.config.excludeDirectories.some(
-            (dir) => path.basename(fullPath) === dir
-          )
-        ) {
-          content += await this.traverseDirectory(fullPath);
-        }
+        content += await this.traverseDirectory(fullPath);
       } else if (stat.isFile()) {
         const relativePath = path.relative(this.workspacePath, fullPath);
         if (this.shouldIncludeFile(relativePath)) {
@@ -177,29 +171,31 @@ export class ProjectExporter {
   }
 
   shouldIncludeFile(relativePath: string): boolean {
-    // Primero verificar excepciones manuales
-    if (this.exceptionsManager.isForceIncluded(relativePath)) {
-      return true;
-    }
+    const filename = path.basename(relativePath);
+    const extension = path.extname(filename).slice(1).toLowerCase();
+
+    const isInExcludedDirectory = this.config.excludeDirectories.some(
+      (dir) =>
+        relativePath.includes(dir + "/") || relativePath.includes(dir + "\\")
+    );
+
+    const isExcludedFile = this.config.excludeFiles.includes(filename);
+
+    const isExcludedExtension =
+      this.config.excludeExtensions.includes(extension);
 
     if (this.exceptionsManager.isForceExcluded(relativePath)) {
       return false;
     }
 
-    const filename = path.basename(relativePath);
-    const extension = path.extname(filename).slice(1).toLowerCase();
+    if (this.exceptionsManager.isForceIncluded(relativePath)) {
+      return true;
+    }
 
-    // Verificar archivos específicos excluidos
-    if (this.config.excludeFiles.includes(filename)) {
+    if (isInExcludedDirectory || isExcludedFile || isExcludedExtension) {
       return false;
     }
 
-    // Verificar extensiones excluidas
-    if (this.config.excludeExtensions.includes(extension)) {
-      return false;
-    }
-
-    // Verificar tamaño del archivo
     try {
       const fullPath = path.join(this.workspacePath, relativePath);
       const stat = fs.statSync(fullPath);
@@ -207,11 +203,9 @@ export class ProjectExporter {
         return false;
       }
     } catch (error) {
-      // Si no podemos leer el archivo, lo excluimos
       return false;
     }
 
-    // Por defecto, incluir el archivo
     return true;
   }
 
